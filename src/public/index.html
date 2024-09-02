@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Chat App</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header class="py-1 mb-4 customColor">
+        <div class="container">
+            <h2 class="text-white">Real-Time Chat App</h2>
+        </div>
+    </header>
+    
+    <div id="app" class="container">
+        <div class="card" v-if="!isLoggedIn">
+          <div v-if="!showRegistration">
+            <div class="card-header">
+                <h2 class="mb-0">Login</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <input v-model="username" placeholder="Username" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <input v-model="password" type="password" placeholder="Password" class="form-control" />
+                </div>
+                <button @click="login" class="btn btn-block customColor whiteColor">Login</button>
+                <p v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
+                <button @click="showRegistration = true" class="btn btn-link">Don't have an account? Register</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card" v-if="showRegistration">
+            <div class="card-header">
+                <h2 class="mb-0">Register</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <input v-model="newUsername" placeholder="New Username" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <input v-model="newPassword" type="password" placeholder="New Password" class="form-control" />
+                </div>
+                <button @click="register" class="btn btn-block customColor whiteColor">Register</button>
+                <p v-if="registrationError" class="text-danger mt-2">{{ registrationError }}</p>
+                <button @click="showRegistration = false" class="btn btn-link">Back to Login</button>
+            </div>
+        </div>
+        
+        <div v-if="isLoggedIn">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="mb-0">Chat</h2>
+                </div>
+                <div class="card-body">
+                    <div id="chat-window">
+                        <div v-for="message in messages" :key="message.id" class="mb-2">
+                            <strong>{{ message.user_id }}:</strong> {{ message.message }}
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input v-model="newMessage" placeholder="Type a message" class="form-control" />
+                        <div class="input-group-append">
+                            <button @click="sendMessage" class="btn customColor">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <button @click="logout" class="btn btn-danger">Logout</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
