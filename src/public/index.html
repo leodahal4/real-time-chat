@@ -17,22 +17,22 @@
     
     <div id="app" class="container">
         <div class="card" v-if="!isLoggedIn">
-          <div v-if="!showRegistration">
-            <div class="card-header">
-                <h2 class="mb-0">Login</h2>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <input v-model="username" placeholder="Username" class="form-control" />
+            <div v-if="!showRegistration">
+                <div class="card-header">
+                    <h2 class="mb-0">Login</h2>
                 </div>
-                <div class="form-group">
-                    <input v-model="password" type="password" placeholder="Password" class="form-control" />
+                <div class="card-body">
+                    <div class="form-group">
+                        <input v-model="username" placeholder="Username" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <input v-model="password" type="password" placeholder="Password" class="form-control" />
+                    </div>
+                    <button @click="login" class="btn btn-block customColor whiteColor">Login</button>
+                    <p v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
+                    <button @click="showRegistration = true" class="btn btn-link">Don't have an account? Register</button>
                 </div>
-                <button @click="login" class="btn btn-block customColor whiteColor">Login</button>
-                <p v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
-                <button @click="showRegistration = true" class="btn btn-link">Don't have an account? Register</button>
             </div>
-          </div>
         </div>
         
         <div class="card" v-if="showRegistration">
@@ -69,6 +69,24 @@
                             <button @click="sendMessage" class="btn customColor">Send</button>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="mb-0">Rooms</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <input v-model="newRoomName" placeholder="Create a new room" class="form-control" />
+                        <button @click="createRoom" class="btn btn-block customColor mt-2">Create Room</button>
+                    </div>
+                    <h5>Existing Rooms:</h5>
+                    <ul class="list-group">
+                        <li v-for="room in rooms" :key="room.id" class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ room.name }}
+                            <button @click="joinRoom(room.name)" class="btn btn-sm btn-outline-primary">Join</button>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <div class="text-right">
