@@ -2,10 +2,12 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 require('dotenv').config();
+const { initDB } = require('./config/db');
 
 // Create Express app and HTTP server
 const app = express();
 const server = http.createServer(app);
+initDB();
 
 // Middleware
 app.use(express.json());
