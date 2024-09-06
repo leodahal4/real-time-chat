@@ -6,17 +6,17 @@ new Vue({
         newUsername: '',
         newPassword: '',
         newMessage: '',
-        newRoomName: '', // New data property for room creation
+        newRoomName: '',
         messages: [],
-        rooms: [], // Array to hold existing rooms
+        rooms: [],
         isLoggedIn: false,
         errorMessage: '',
         registrationError: '',
-        showRegistration: false // New data property
+        showRegistration: false
     },
     created() {
         this.checkToken();
-        this.fetchRooms(); // Fetch existing rooms on component creation
+        this.fetchRooms();
     },
     methods: {
         checkToken() {
@@ -92,7 +92,7 @@ new Vue({
             });
         },
         createRoom() {
-            fetch('/rooms', {
+            fetch('/room', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ new Vue({
             });
         },
         fetchRooms() {
-            fetch('/rooms', {
+            fetch('/room', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }

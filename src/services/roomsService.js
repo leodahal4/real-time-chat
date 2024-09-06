@@ -1,6 +1,14 @@
-const { getRoomByName, createRoom } = require('../repositories/roomsRepository');
+const {
+  getRoomByName,
+  createRoom,
+  getRoomMessages,
+  getRoom,
+  updateRoom,
+  deleteRoom,
+  getRooms
+} = require('../repositories/roomRepository');
 
-const newRoom = async (userId, roomName, roomPassword) => {
+const newRoomService = async (userId, roomName, roomPassword) => {
   // check if the room already exists
   const room = await getRoomByName(roomName);
   if (room) {
@@ -10,7 +18,7 @@ const newRoom = async (userId, roomName, roomPassword) => {
   return createRoom(userId, roomName, roomPassword);
 }
 
-const getRoomMessages = async (roomId) => {
+const getRoomMessagesService = async (roomId) => {
   const room = await getRoomMessages(roomId);
   if (!room) {
     throw new Error('Room not found');
@@ -19,7 +27,7 @@ const getRoomMessages = async (roomId) => {
   return room.messages;
 }
 
-const getRoom = async (userId, roomId) => {
+const getRoomService = async (userId, roomId) => {
   const room = await getRoom(userId, roomId);
   if (!room) {
     throw new Error('Room not found');
@@ -28,7 +36,7 @@ const getRoom = async (userId, roomId) => {
   return room;
 }
 
-const updateRoom = async (userId, roomId, roomName, roomPassword) => {
+const updateRoomService = async (userId, roomId, roomName, roomPassword) => {
   const room = await updateRoom(userId, roomId, roomName, roomPassword);
   if (!room) {
     throw new Error('Room not found');
@@ -37,7 +45,7 @@ const updateRoom = async (userId, roomId, roomName, roomPassword) => {
   return room;
 }
 
-const deleteRoom = async (userId, roomId) => {
+const deleteRoomService = async (userId, roomId) => {
   const room = await deleteRoom(userId, roomId);
   if (!room) {
     throw new Error('Room not found');
@@ -46,7 +54,15 @@ const deleteRoom = async (userId, roomId) => {
   return room;
 }
 
-const getRooms = async (userId) => {
+const getRoomsService = async (userId) => {
   return getRooms(userId);
 }
 
+module.exports = {
+  newRoomService,
+  getRoomMessagesService,
+  getRoomService,
+  updateRoomService,
+  deleteRoomService,
+  getRoomsService
+};
