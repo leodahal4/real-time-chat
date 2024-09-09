@@ -1,5 +1,5 @@
 {
-  "name": "final-node-chat",
+  "name": "node-chat",
   "version": "1.0.0",
   "description": "This is a simple real-time chat application that creates a room for allowing the users to connect to the room and chat with other members of the room, after logging in to the server.",
   "main": "index.js",
