@@ -6,17 +6,24 @@ new Vue({
         newUsername: '',
         newPassword: '',
         newMessage: '',
-        newRoomName: '', // New data property for room creation
+        newRoomName: '',
+        newRoomPassword: '',
         messages: [],
         rooms: [], // Array to hold existing rooms
         isLoggedIn: false,
         errorMessage: '',
         registrationError: '',
-        showRegistration: false // New data property
+        showRegistration: false,
+        activeRoom: null,
+        openPasswordModal: false,
+        roomPassword: '',
+        roomError: '',
+        ws: null,
+        userId: null
     },
     created() {
         this.checkToken();
-        this.fetchRooms(); // Fetch existing rooms on component creation
+        this.connectWebSocket();
     },
     methods: {
         checkToken() {
@@ -29,12 +36,19 @@ new Vue({
                 })
                 .then(response => {
                     if (response.ok) {
-                        this.isLoggedIn = true; // Set logged in status to true
-                        this.fetchMessages(); // Fetch messages if the token is valid
+                        this.isLoggedIn = true;
+                        this.fetchRooms();
+                      return response.json();
                     } else {
                         localStorage.removeItem('token'); // Remove invalid token
                     }
                 })
+              .then(data => {
+                this.userId = data.id;
+                this.username = data.username;
+                localStorage.setItem('userId', data.id);
+                localStorage.setItem('username', data.username);
+              })
                 .catch(error => {
                     console.error('Token verification failed:', error);
                     localStorage.removeItem('token'); // Remove invalid token
@@ -57,9 +71,11 @@ new Vue({
             })
             .then(data => {
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('userId', data.id);
+                localStorage.setItem('username', data.username);
+                this.userId = data.id;
                 this.isLoggedIn = true;
                 this.errorMessage = '';
-                this.fetchMessages();
                 this.fetchRooms(); // Fetch rooms after login
             })
             .catch(error => {
@@ -98,7 +114,7 @@ new Vue({
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify({ name: this.newRoomName })
+                body: JSON.stringify({ name: this.newRoomName, password: this.newRoomPassword})
             })
             .then(response => {
                 if (!response.ok) {
@@ -122,10 +138,39 @@ new Vue({
                 this.rooms = data; // Update the rooms array with fetched data
             });
         },
-        joinRoom(roomName) {
-            // Logic to join the room can be implemented here
-            console.log(`Joining room: ${roomName}`);
-            // You may want to implement logic to switch the chat context to the selected room
+        joinRoom(room) {
+          this.activeRoom = room;
+           fetch(`/room/${room.id}/join`, {
+             method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+              },
+              body: JSON.stringify({ password: this.roomPassword })
+            })
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              }
+              if (response.status === 400) {
+                this.roomError = 'Invalid password';
+                this.activeRoom = null;
+                return
+              }
+                this.messages = response.data;
+              console.debug("response" + response);
+              // print the response tree with keys
+              console.debug("response keys" + Object.keys(response));
+            })
+          .then(data => {
+              this.activeRoom = room;
+              this.messages = data
+            this.connectWebSocket();
+          })
+            .catch(error => {
+              this.roomError = error.message;
+              this.activeRoom = null;
+            });
         },
         logout() {
             localStorage.removeItem('token');
@@ -143,20 +188,47 @@ new Vue({
                 this.messages = data;
             });
         },
-        sendMessage() {
-            fetch('/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ message: this.newMessage })
-            })
-            .then(response => response.json())
-            .then(data => {
-                this.messages.push(data);
-                this.newMessage = '';
-            });
+      sendMessage() {
+        if (this.ws === null) {
+          this.connectWebSocket();
         }
+            const message = {
+                userId: this.userId,
+                username: localStorage.getItem('username'),
+                roomId: this.activeRoom.id,
+                message: this.newMessage
+            };
+        this.messages.push(message);
+            this.ws.send(JSON.stringify(message));
+            this.newMessage = '';
+        },
+        connectWebSocket() {
+          if (!this.activeRoom) {
+            return;
+          }
+            this.ws = new WebSocket(`ws://localhost:3000?token=${localStorage.getItem('token')}&roomID=${this.activeRoom.id}`);
+            this.ws.onopen = () => {
+                console.log('WebSocket connection established');
+            };
+
+            this.ws.onmessage = (event) => {
+                const messageReceived = JSON.parse(event.data);
+                const message = {
+                    userId: messageReceived.userId,
+                    username: messageReceived.username,
+                    roomId: messageReceived.roomId,
+                    message: messageReceived.message
+                };
+                this.messages.push(message); // Add the received message to the messages array
+                this.$nextTick(() => {
+                    const chatWindow = this.$el.querySelector('#chat-window');
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                });
+            };
+
+            this.ws.onclose = () => {
+                console.log('WebSocket connection closed');
+            };
+        },
     }
 });

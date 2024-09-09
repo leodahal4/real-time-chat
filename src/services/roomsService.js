@@ -1,4 +1,14 @@
-const { getRoomByName, createRoom } = require('../repositories/roomsRepository');
+const bcrypt = require('bcryptjs');
+const {
+  getRoomByName,
+  createRoom,
+  getRoomMessages,
+  getRoom,
+  updateRoom,
+  deleteRoom,
+  getRooms,
+  updateRoomMembers
+} = require('../repositories/roomRepository');
 
 const newRoom = async (userId, roomName, roomPassword) => {
   // check if the room already exists
@@ -7,7 +17,8 @@ const newRoom = async (userId, roomName, roomPassword) => {
     throw new Error('Room already exists');
   }
 
-  return createRoom(userId, roomName, roomPassword);
+  const hashedPassword = bcrypt.hashSync(roomPassword, 8);
+  return createRoom(userId, roomName, hashedPassword);
 }
 
 const getRoomMessages = async (roomId) => {
@@ -19,8 +30,8 @@ const getRoomMessages = async (roomId) => {
   return room.messages;
 }
 
-const getRoom = async (userId, roomId) => {
-  const room = await getRoom(userId, roomId);
+const getRoomService = async (roomId) => {
+  const room = await getRoom(roomId);
   if (!room) {
     throw new Error('Room not found');
   }
@@ -46,7 +57,52 @@ const deleteRoom = async (userId, roomId) => {
   return room;
 }
 
-const getRooms = async (userId) => {
-  return getRooms(userId);
+const getRoomsService = async () => {
+  return getRooms();
 }
 
+const joinRoomService = async (userId, roomId, requestedPassword) => {
+  // get the room
+  const room = await getRoom(userId, roomId);
+  if (!room) {
+    throw new Error('Room not found');
+  }
+
+  // check if the password is correctS
+  if (room.password != null) {
+    if (!requestedPassword) {
+      throw new Error('Password is required');
+    }
+    if (!(bcrypt.compareSync(requestedPassword, room.password))) {
+      throw new Error('Invalid password');
+    }
+  }
+  
+  if (room.members == null) {
+    room.members = [];
+  }
+  // check if the user is already a member of the room
+  if (room.members.includes(userId)) {
+    return getRoomMessages(roomId);
+  }
+
+  // add the user to the room
+  room.members.push(userId);
+
+  // save the room
+  return updateRoomMembers(roomId, room.members);
+}
+
+const getAllRoomService = async () => {
+  return getRooms();
+}
+
+module.exports = {
+  newRoomService,
+  getRoomMessagesService,
+  getRoomService,
+  updateRoomService,
+  deleteRoomService,
+  getRoomsService,
+  joinRoomService,
+};

@@ -51,29 +51,47 @@
                 <button @click="showRegistration = false" class="btn btn-link">Back to Login</button>
             </div>
         </div>
-        
-        <div v-if="isLoggedIn">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h2 class="mb-0">Chat</h2>
+    <div id="app" class="container-fluid" v-if="isLoggedIn">
+        <div class="row">
+            <div class="col-md-4 col-lg-3 side-container">
+                <h4 class="mt-3">Rooms</h4>
+                <div class="form-group">
+                    <input v-model="newRoomName" placeholder="Room Name *" class="form-control mb-2" />
+                    <input v-model="newRoomPassword" placeholder="Password (Optional)" class="form-control" type="password" />
+                    <button @click="createRoom" class="btn btn-block customColor mt-2">Create Room</button>
                 </div>
-                <div class="card-body">
-                    <div id="chat-window">
-                        <div v-for="message in messages" :key="message.id" class="mb-2">
-                            <strong>{{ message.user_id }}:</strong> {{ message.message }}
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input v-model="newMessage" placeholder="Type a message" class="form-control" />
-                        <div class="input-group-append">
-                            <button @click="sendMessage" class="btn customColor">Send</button>
-                        </div>
-                    </div>
-                </div>
+                <h5>Existing Rooms:</h5>
+                  <ul class="list-group">
+                    <li v-for="room in rooms" :key="room.id" 
+                        :class="['list-group-item', { 'active': activeRoom === room }]" 
+                        class="d-flex justify-content-between align-items-center">
+                        <b class="mr-1">{{ room.room_name }}</b>
+                        <button @click="joinRoom(room)" class="btn btn-sm btn-outline-primary">Join</button>
+                          <span v-if="activeRoom === room" class="badge badge-primary badge-pill">Active</span>
+                    </li>
+                  </ul>
+                  <input v-model="roomPassword" placeholder="Password" class="form-control mt-3" type="password" />
+                  <!--- print here if any error occurred !--->
+                  <p v-if="roomError" class="text-danger mt-2">{{ roomError }}</p>
             </div>
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h2 class="mb-0">Rooms</h2>
+            <div class="col-md-8 col-lg-9 main-container">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2 class="mb-0">Chat</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="chat-window" class="overflow-auto">
+                            <div v-for="message in messages" :key="message.id" class="mb-2">
+                                <strong>{{ message.username }}:</strong> {{ message.message }}
+                            </div>
+                        </div>
+                        <div class="input-group mb-3">
+                            <input v-model="newMessage" placeholder="Type a message" class="form-control" />
+                            <div class="input-group-append">
+                                <button @click="sendMessage" class="btn customColor">Send</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
@@ -93,6 +111,12 @@
                 <button @click="logout" class="btn btn-danger">Logout</button>
             </div>
         </div>
+    </div>
+    <footer>
+      <div class="container float-right">
+        <button v-if="isLoggedIn" @click="logout" class="btn">Logout</button>
+      </div>
+    </footer>
     </div>
     <script src="script.js"></script>
 </body>

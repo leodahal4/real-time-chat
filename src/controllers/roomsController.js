@@ -1,7 +1,17 @@
-const { createRoom } = require('../services/roomsService');
+const {
+  newRoomService,
+  getRoomsService,
+  getRoomService,
+  updateRoomService,
+  deleteRoomService,
+  getRoomMessagesService,
+  joinRoomService
+} = require('../services/roomsService');
+const bcrypt = require('bcryptjs');
 
 const createRoom = async (req, res) => {
   const roomName = req.body.name;
+  console.log(req);
   if (!roomName) {
     return res.status(400).json({
       message: 'Room name is required'
@@ -23,7 +33,7 @@ const createRoom = async (req, res) => {
 const getRooms = async (req, res) => {
   const userId = req.user.id;
   try {
-    const rooms = await getRooms(userId);
+    const rooms = await getRoomsService();
     res.status(200).json(rooms);
   } catch (error) {
     res.status(500).json({
@@ -92,7 +102,7 @@ const getRoomMessages = async (req, res) => {
   const userId = req.user.id;
   const roomId = req.params.id;
   // check if the user is a member of the room
-  const room = await getRoom(userId, roomId);
+  const room = await getRoomService(roomId);
   if (!room) {
     return res.status(404).json({
       message: 'Room not found'
@@ -108,10 +118,36 @@ const getRoomMessages = async (req, res) => {
   }
 }
 
+const joinRoomController = async (req, res) => {
+  const userId = req.user.id;
+  const roomId = req.params.id;
+  const requestedPassword = req.body.password;
+
+  // get the room
+  const room = await getRoomService(roomId);
+  console.log(room, "======");
+  if (!room) {
+    return res.status(404).json({
+      message: 'Room not found'
+    });
+  }
+
+  try {
+    const updatedRoom = await joinRoomService(userId, roomId, requestedPassword);
+    return res.status(200).json(updatedRoom);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
+  }
+}
+
 module.exports = {
-  createRoom,
-  getRooms,
-  getRoom,
-  updateRoom,
-  deleteRoom
+  createRoomController,
+  getRoomsController,
+  getRoomController,
+  updateRoomController,
+  deleteRoomController,
+  getRoomMessagesController,
+  joinRoomController
 };

@@ -11,7 +11,8 @@ const authenticateJWT = (req, res, next) => {
             next();
         });
     } else {
-        res.sendStatus(401); // Unauthorized
+        console.log('Unauthorized token is ' + token);
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 };
 

@@ -85,7 +85,8 @@ CREATE TABLE rooms (
     name VARCHAR(50) UNIQUE NOT NULL,
     user_id INT REFERENCES users(id),
     password VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    members INT[]
 );
 ```
 

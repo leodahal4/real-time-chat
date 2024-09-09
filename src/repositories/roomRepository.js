@@ -22,12 +22,23 @@ const getRoomMessages = async (roomId) => {
     return res.rows;
 }
 
-const getRoom = async (userId, roomId) => {
-    const query = 'SELECT * FROM rooms WHERE user_id = $1 AND id = $2';
-    const values = [userId, roomId];
+const getRoom = async (roomId) => {
+    const query = 'SELECT * FROM rooms WHERE id = $1';
+    const values = [roomId];
     const res = await pool.query(query, values);
-
+    if (!res.rows[0]) {
+        return null;
+    }
     return res.rows[0];
+}
+
+const updateRoomMembers = async (roomId, roomMembers) => {
+  const query = 'UPDATE rooms SET members = $1 WHERE id = $2 RETURNING *';
+  const values = [roomMembers, roomId];
+  const res = await pool.query(query, values);
+
+  // after updating the room members, return the messages for the room
+  return getRoomMessages(roomId);
 }
 
 const updateRoom = async (userId, roomId, roomName, roomPassword) => {
@@ -46,11 +57,20 @@ const deleteRoom = async (userId, roomId) => {
     return res.rows[0];
 }
 
-const getRooms = async (userId) => {
-    const query = 'SELECT * FROM rooms WHERE user_id = $1';
-    const values = [userId];
-    const res = await pool.query(query, values);
+const getRooms = async () => {
+    const query = 'SELECT * FROM rooms';
+    const res = await pool.query(query);
     
     return res.rows;
 }
 
+module.exports = {
+  createRoom,
+  getRoomByName,
+  getRoomMessages,
+  getRoom,
+  updateRoom,
+  getRooms,
+  deleteRoom,
+  updateRoomMembers
+}
