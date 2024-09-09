@@ -10,7 +10,7 @@ const {
   updateRoomMembers
 } = require('../repositories/roomRepository');
 
-const newRoom = async (userId, roomName, roomPassword) => {
+const newRoomService = async (userId, roomName, roomPassword) => {
   // check if the room already exists
   const room = await getRoomByName(roomName);
   if (room) {
@@ -21,7 +21,7 @@ const newRoom = async (userId, roomName, roomPassword) => {
   return createRoom(userId, roomName, hashedPassword);
 }
 
-const getRoomMessages = async (roomId) => {
+const getRoomMessagesService = async (roomId) => {
   const room = await getRoomMessages(roomId);
   if (!room) {
     throw new Error('Room not found');
@@ -39,7 +39,7 @@ const getRoomService = async (roomId) => {
   return room;
 }
 
-const updateRoom = async (userId, roomId, roomName, roomPassword) => {
+const updateRoomService = async (userId, roomId, roomName, roomPassword) => {
   const room = await updateRoom(userId, roomId, roomName, roomPassword);
   if (!room) {
     throw new Error('Room not found');
@@ -48,7 +48,7 @@ const updateRoom = async (userId, roomId, roomName, roomPassword) => {
   return room;
 }
 
-const deleteRoom = async (userId, roomId) => {
+const deleteRoomService = async (userId, roomId) => {
   const room = await deleteRoom(userId, roomId);
   if (!room) {
     throw new Error('Room not found');

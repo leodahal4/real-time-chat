@@ -16,7 +16,7 @@ const loginUser = async (username, password) => {
     if (user && bcrypt.compareSync(password, user.password)) {
         const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET);
       const response = {userId: user.id, username: user.username, token: token};
-        return token;
+        return response;
     }
     throw new Error('Invalid credentials');
 };

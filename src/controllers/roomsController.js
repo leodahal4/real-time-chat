@@ -9,7 +9,7 @@ const {
 } = require('../services/roomsService');
 const bcrypt = require('bcryptjs');
 
-const createRoom = async (req, res) => {
+const createRoomController = async (req, res) => {
   const roomName = req.body.name;
   console.log(req);
   if (!roomName) {
@@ -18,19 +18,23 @@ const createRoom = async (req, res) => {
     });
   }
   const userId = req.user.id;
-  const roomPassword = req.body.password;
+  let hashedPassword = null;
+  if (req.body.password) {
+    hashedPassword = await bcrypt.hash(req.body.password, 8);
+  }
 
   try {
-    const room = await createRoom(userId, roomName, roomPassword);
+    const room = await newRoomService(userId, roomName, hashedPassword);
     res.status(201).json(room);
   } catch (error) {
+      console.log(error, "====== createRoomController");
     res.status(500).json({
       message: 'Internal server error'
     });
   }
 }
 
-const getRooms = async (req, res) => {
+const getRoomsController = async (req, res) => {
   const userId = req.user.id;
   try {
     const rooms = await getRoomsService();
@@ -42,7 +46,7 @@ const getRooms = async (req, res) => {
   }
 }
 
-const getRoom = async (req, res) => {
+const getRoomController = async (req, res) => {
   const userId = req.user.id;
   const roomId = req.params.id;
   try {
@@ -60,13 +64,13 @@ const getRoom = async (req, res) => {
   }
 }
 
-const updateRoom = async (req, res) => {
+const updateRoomController = async (req, res) => {
   const userId = req.user.id;
   const roomId = req.params.id;
   const roomName = req.body.name;
   const roomPassword = req.body.password;
   try {
-    const room = await updateRoom(userId, roomId, roomName, roomPassword);
+    const room = await updateRoomService(userId, roomId, roomName, roomPassword);
     if (!room) {
       return res.status(404).json({
         message: 'Room not found'
@@ -80,11 +84,11 @@ const updateRoom = async (req, res) => {
   }
 }
 
-const deleteRoom = async (req, res) => {
+const deleteRoomController = async (req, res) => {
   const userId = req.user.id;
   const roomId = req.params.id;
   try {
-    const room = await deleteRoom(userId, roomId);
+    const room = await deleteRoomService(userId, roomId);
     if (!room) {
       return res.status(404).json({
         message: 'Room not found'
@@ -98,7 +102,7 @@ const deleteRoom = async (req, res) => {
   }
 };
 
-const getRoomMessages = async (req, res) => {
+const getRoomMessagesController = async (req, res) => {
   const userId = req.user.id;
   const roomId = req.params.id;
   // check if the user is a member of the room
@@ -119,6 +123,7 @@ const getRoomMessages = async (req, res) => {
 }
 
 const joinRoomController = async (req, res) => {
+  console.log(req.body, "======");
   const userId = req.user.id;
   const roomId = req.params.id;
   const requestedPassword = req.body.password;

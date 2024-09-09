@@ -20,7 +20,8 @@ const login = async (req, res) => {
     const { username, password } = req.body;
     try {
         const token = await loginUser(username, password);
-        res.json({ token });
+      const userid = token.id;
+        return res.status(200).json(token);
     } catch (error) {
       console.log(error);
         res.status(403).json({ message: 'Invalid credentials' });

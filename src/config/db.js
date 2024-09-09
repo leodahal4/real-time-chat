@@ -5,7 +5,8 @@ const pool = new Pool({
 });
 
 const maskPasswordInUrl = (url) => {
-  return url.replace(/(postgres:\/\/.*:)(.*)(@.*)/, '$1*******$3');
+  // return url.replace(/(postgres:\/\/.*:)(.*)(@.*)/, '$1*******$3');
+  return url
 };
 
 const initDB = () => {
@@ -13,7 +14,7 @@ const initDB = () => {
   console.log('Initializing database with url:', maskedDatabaseUrl);
     pool.connect()
         .then(() => console.log('Connected to PostgreSQL'))
-        .catch(err => console.error('Connection error', err.stack));
+        .catch(err => console.error('Connection error =====', err.stack));
 };
 
 module.exports = { pool, initDB };
