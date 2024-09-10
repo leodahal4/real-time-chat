@@ -1,6 +1,7 @@
 new Vue({
   el: "#app",
   data: {
+    isFullScreen: false,
     username: "",
     password: "",
     newUsername: "",
@@ -26,6 +27,15 @@ new Vue({
     this.connectWebSocket();
   },
   methods: {
+    toggleFullScreen() {
+      this.isFullScreen = !this.isFullScreen;
+      const chatWindow = this.$el.querySelector("#actualChat");
+      if (this.isFullScreen) {
+        chatWindow.classList.add("full-screen");
+      } else {
+        chatWindow.classList.remove("full-screen");
+      }
+    },
     checkToken() {
       const token = localStorage.getItem("token");
       if (token) {
@@ -188,6 +198,7 @@ new Vue({
     },
     logout() {
       localStorage.removeItem("token");
+      console.log("isLoggedIn before logout: " + this.isLoggedIn);
       this.isLoggedIn = false;
       this.messages = [];
     },
@@ -200,6 +211,8 @@ new Vue({
         .then((response) => response.json())
         .then((data) => {
           this.messages = data;
+          const chatWindow = this.$el.querySelector("#chat-window");
+          chatWindow.scrollTop = chatWindow.scrollHeight;
         });
     },
     sendMessage() {
