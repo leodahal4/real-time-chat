@@ -66,7 +66,10 @@ new Vue({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: this.username, password: this.password }),
+        body: JSON.stringify({
+          username: this.username,
+          password: this.password,
+        }),
       })
         .then((response) => {
           if (!response.ok) {
@@ -75,7 +78,6 @@ new Vue({
           return response.json();
         })
         .then((data) => {
-          console.log(data, " -------------------data");
           localStorage.setItem("token", data.token);
           localStorage.setItem("userId", data.userId);
           localStorage.setItem("username", data.username);
@@ -94,7 +96,10 @@ new Vue({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: this.newUsername, password: this.newPassword }),
+        body: JSON.stringify({
+          username: this.newUsername,
+          password: this.newPassword,
+        }),
       })
         .then((response) => {
           if (!response.ok) {
@@ -120,18 +125,21 @@ new Vue({
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ name: this.newRoomName, password: this.newRoomPassword }),
+        body: JSON.stringify({
+          name: this.newRoomName,
+          password: this.newRoomPassword,
+        }),
       })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Room creation failed", response);
-        }
-        this.newRoomName = ""; // Clear the input after successful creation
-        this.fetchRooms(); // Refresh the room list
-      })
-      .catch((error) => {
-        console.error(error.message);
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Room creation failed", response);
+          }
+          this.newRoomName = ""; // Clear the input after successful creation
+          this.fetchRooms(); // Refresh the room list
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
     },
     fetchRooms() {
       fetch("/room", {
@@ -212,7 +220,9 @@ new Vue({
       if (!this.activeRoom) {
         return;
       }
-      this.ws = new WebSocket(`ws://localhost:3000?token=${localStorage.getItem("token")}&roomID=${this.activeRoom.id}`);
+      this.ws = new WebSocket(
+        `ws://localhost:3000?token=${localStorage.getItem("token")}&roomID=${this.activeRoom.id}`
+      );
       this.ws.onopen = () => {
         console.log("WebSocket connection established");
       };
@@ -238,4 +248,3 @@ new Vue({
     },
   },
 });
-
