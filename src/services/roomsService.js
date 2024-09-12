@@ -17,7 +17,11 @@ const newRoomService = async (userId, roomName, roomPassword) => {
     throw new Error("Room already exists");
   }
 
-  const hashedPassword = bcrypt.hashSync(roomPassword, 8);
+  let hashedPassword = null;
+  if (roomPassword) {
+    hashedPassword = bcrypt.hashSync(roomPassword, 8);
+  }
+  console.log("password hashed", hashedPassword)
   return createRoom(userId, roomName, hashedPassword);
 };
 
@@ -63,13 +67,15 @@ const getRoomsService = async () => {
 
 const joinRoomService = async (userId, roomId, requestedPassword) => {
   // get the room
-  const room = await getRoom(userId, roomId);
+  const room = await getRoom(roomId);
   if (!room) {
     throw new Error("Room not found");
   }
 
   // check if the password is correctS
   if (room.password != null) {
+    console.log("room.password", room.password);
+    console.log("requestedPassword", requestedPassword);
     if (!requestedPassword) {
       throw new Error("Password is required");
     }

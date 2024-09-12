@@ -1,9 +1,12 @@
 const { pool } = require("../config/db");
 
 const createRoom = async (userId, roomName, roomPassword) => {
-  const query =
-    "INSERT INTO rooms (user_id, room_name, password) VALUES ($1, $2, $3) RETURNING *";
-  const values = [userId, roomName, roomPassword];
+  let query = "INSERT INTO rooms (user_id, room_name) VALUES ($1, $2) RETURNING *";
+  let values = [userId, roomName];
+  if (roomPassword != "") {
+    query = "INSERT INTO rooms (user_id, room_name, password) VALUES ($1, $2, $3) RETURNING *";
+    values = [userId, roomName, roomPassword];
+  }
   const res = await pool.query(query, values);
   return res.rows[0];
 };

@@ -17,17 +17,13 @@ const createRoomController = async (req, res) => {
     });
   }
   const userId = req.user.id;
-  let hashedPassword = null;
-  if (req.body.password) {
-    hashedPassword = await bcrypt.hash(req.body.password, 8);
-  }
 
   try {
-    const room = await newRoomService(userId, roomName, hashedPassword);
+    const room = await newRoomService(userId, roomName, req.body.password);
     res.status(201).json(room);
   } catch (error) {
-    res.status(500).json({
-      message: "Internal server error",
+    res.status(400).json({
+      message: error.message,
     });
   }
 };

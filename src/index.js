@@ -5,7 +5,7 @@ const path = require("path");
 const WebSocket = require("ws");
 require("dotenv").config();
 
-const { initDB } = require("./config/db");
+const { initDB, migrate } = require("./config/db");
 const routes = require("./routes/routes");
 const handleWebSocketConnection = require("./websocket/websocketHandler");
 
@@ -15,6 +15,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 initDB();
+migrate();
 
 // Middleware
 app.use(express.json());

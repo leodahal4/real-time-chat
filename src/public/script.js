@@ -189,7 +189,9 @@ new Vue({
         .then((data) => {
           this.activeRoom = room;
           this.messages = data;
-          this.connectWebSocket();
+          setTimeout(() => {
+            this.connectWebSocket();
+          }, 1000);
         })
         .catch((error) => {
           this.roomError = error.message;

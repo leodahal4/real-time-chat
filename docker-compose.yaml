@@ -23,8 +23,6 @@ services:
       # POSTGRES_DB: chatdb
     volumes:
       - db_data:/var/lib/postgresql/data
-      # - ./src/config/entrypoint.sh:/entrypoint.sh
-      - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
 
 volumes:
   db_data:

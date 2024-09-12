@@ -1,3 +1,4 @@
+const WebSocket = require('ws');
 const { pool } = require("../config/db");
 const jwt = require("jsonwebtoken");
 
