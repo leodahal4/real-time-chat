@@ -1,6 +1,7 @@
 new Vue({
   el: "#app",
   data: {
+    isFullScreen: false,
     username: "",
     password: "",
     newUsername: "",
@@ -26,6 +27,15 @@ new Vue({
     this.connectWebSocket();
   },
   methods: {
+    toggleFullScreen() {
+      this.isFullScreen = !this.isFullScreen;
+      const chatWindow = this.$el.querySelector("#actualChat");
+      if (this.isFullScreen) {
+        chatWindow.classList.add("full-screen");
+      } else {
+        chatWindow.classList.remove("full-screen");
+      }
+    },
     checkToken() {
       const token = localStorage.getItem("token");
       if (token) {
@@ -66,7 +76,10 @@ new Vue({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: this.username, password: this.password }),
+        body: JSON.stringify({
+          username: this.username,
+          password: this.password,
+        }),
       })
         .then((response) => {
           if (!response.ok) {
@@ -75,7 +88,6 @@ new Vue({
           return response.json();
         })
         .then((data) => {
-          console.log(data, " -------------------data");
           localStorage.setItem("token", data.token);
           localStorage.setItem("userId", data.userId);
           localStorage.setItem("username", data.username);
@@ -94,7 +106,10 @@ new Vue({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: this.newUsername, password: this.newPassword }),
+        body: JSON.stringify({
+          username: this.newUsername,
+          password: this.newPassword,
+        }),
       })
         .then((response) => {
           if (!response.ok) {
@@ -120,18 +135,21 @@ new Vue({
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ name: this.newRoomName, password: this.newRoomPassword }),
+        body: JSON.stringify({
+          name: this.newRoomName,
+          password: this.newRoomPassword,
+        }),
       })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Room creation failed", response);
-        }
-        this.newRoomName = ""; // Clear the input after successful creation
-        this.fetchRooms(); // Refresh the room list
-      })
-      .catch((error) => {
-        console.error(error.message);
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Room creation failed", response);
+          }
+          this.newRoomName = ""; // Clear the input after successful creation
+          this.fetchRooms(); // Refresh the room list
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
     },
     fetchRooms() {
       fetch("/room", {
@@ -171,7 +189,9 @@ new Vue({
         .then((data) => {
           this.activeRoom = room;
           this.messages = data;
-          this.connectWebSocket();
+          setTimeout(() => {
+            this.connectWebSocket();
+          }, 1000);
         })
         .catch((error) => {
           this.roomError = error.message;
@@ -180,6 +200,7 @@ new Vue({
     },
     logout() {
       localStorage.removeItem("token");
+      console.log("isLoggedIn before logout: " + this.isLoggedIn);
       this.isLoggedIn = false;
       this.messages = [];
     },
@@ -192,6 +213,8 @@ new Vue({
         .then((response) => response.json())
         .then((data) => {
           this.messages = data;
+          const chatWindow = this.$el.querySelector("#chat-window");
+          chatWindow.scrollTop = chatWindow.scrollHeight;
         });
     },
     sendMessage() {
@@ -212,7 +235,9 @@ new Vue({
       if (!this.activeRoom) {
         return;
       }
-      this.ws = new WebSocket(`ws://localhost:3000?token=${localStorage.getItem("token")}&roomID=${this.activeRoom.id}`);
+      this.ws = new WebSocket(
+        `ws://localhost:3000?token=${localStorage.getItem("token")}&roomID=${this.activeRoom.id}`
+      );
       this.ws.onopen = () => {
         console.log("WebSocket connection established");
       };
@@ -238,4 +263,3 @@ new Vue({
     },
   },
 });
-
